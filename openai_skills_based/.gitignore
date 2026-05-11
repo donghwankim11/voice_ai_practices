@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.pyc
+*.pyo
+
+requirements.txt
+
+*.wav
+*.pcm
+*.mp3
+*.m4a
+
+.DS_Store

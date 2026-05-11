@@ -1,0 +1,28 @@
+# voice_ai_practices / openai_based_LCSK — Skills 패턴 + Realtime API 의존성
+#
+# 사용:
+#   conda env (Python>=3.10) 활성화 후:
+#     export VIRTUAL_ENV="$CONDA_PREFIX"
+#     uv pip compile requirements.in -o requirements.txt --python-version 3.10
+#     uv pip sync requirements.txt
+#   또는 잠금 없이 한 번에:
+#     uv pip install -r requirements.in
+
+# OpenAI / Azure OpenAI SDK (Realtime beta API 포함)
+openai==1.78.0
+
+# .env 로딩
+python-dotenv==1.0.1
+
+# Realtime API (WebSocket) 의존성. openai SDK 가 사용.
+websockets==15.0
+
+# 실시간(Realtime API + 서버 VAD) 양방향 음성 — app_realtime.py
+# (FastAPI WebSocket 서버 + 브라우저 AudioWorklet 으로 양방향 PCM16 스트리밍)
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# NOTE: LangChain 가이드(wikidocs 318950)의 create_agent + AgentMiddleware 는
+#       Realtime API 양방향 스트림과 결합이 까다로워 본 패키지에서는 사용하지 않는다.
+#       Skills *패턴* (Skill 데이터클래스 + load_skill 도구 + 점진적 공개)만
+#       Realtime 네이티브 함수콜링으로 옮겨 구현했으므로 langchain 의존성 불필요.
