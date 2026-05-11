@@ -1,0 +1,36 @@
+# voice_ai_practices 의존성 정의
+#
+# 사용:
+#   conda env (Python>=3.10) 활성화 후:
+#     export VIRTUAL_ENV="$CONDA_PREFIX"
+#     uv pip compile requirements.in -o requirements.txt --python-version 3.10
+#     uv pip sync requirements.txt
+#   또는 잠금 없이 한 번에:
+#     uv pip install -r requirements.in
+
+# OpenAI / Azure OpenAI SDK (Realtime beta API 포함)
+# NOTE: TTS 의 `instructions` 파라미터(발화 스타일 자연어 제어)는 1.70.0 부터 지원.
+openai==1.78.0
+
+# .env 로딩
+python-dotenv==1.0.1
+
+# Realtime API (WebSocket) 의존성. openai SDK 가 사용.
+websockets==15.0
+
+# Jupyter 커널 등록 / 실행
+ipykernel==6.29.5
+jupyter==1.1.1
+
+# 오디오 입출력 (Realtime 마이크/스피커 데모용)
+sounddevice==0.5.1
+numpy==1.26.4
+
+# 웹앱 — 음성 대화 데모 (마이크 입력, 자동 재생 오디오 출력)
+# NOTE: gradio 5.50.0+ 부터 websockets==15 와 호환 (그 이전 5.x 및 4.x 는 websockets<15 를 요구하여 OpenAI Realtime 과 충돌).
+gradio==5.50.0
+
+# 실시간(Realtime API + 서버 VAD) 양방향 음성 데모용 — app_realtime.py
+# (FastAPI WebSocket 서버 + 브라우저 AudioWorklet 으로 양방향 PCM16 스트리밍)
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
