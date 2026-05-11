@@ -134,10 +134,41 @@ git push
 
 1. <https://railway.app/new> → **Deploy from GitHub repo**
 2. `donghwankim11/voice_ai_practices` 선택 → 권한 부여
-3. **모노리포(`elevenlabs_based` 외에 다른 폴더 존재)** 이므로:
-   - 프로젝트 생성 후 **Settings → Service → Root Directory** 를 `elevenlabs_based` 로 지정
-   - **Build → Builder** 는 `Nixpacks` (기본값)
-   - **Deploy → Start Command** 가 비어 있으면 `python app_realtime.py` 입력 (Procfile 있으면 자동)
+3. **모노리포(`elevenlabs_based` 외에 다른 폴더 존재)** 이므로 **Root Directory 를 반드시 지정**해야 함.
+   설정 안 하면 첫 빌드에서 다음 에러로 실패:
+
+   ```
+   ⚠ Script start.sh not found
+   ✖ Railpack could not determine how to build the app.
+
+   The app contents that Railpack analyzed contains:
+   ./
+   ├── elevenlabs_based/
+   └── .gitignore
+   ```
+
+   (Railway 가 리포 루트만 보기 때문에 Python 파일을 못 찾음.)
+
+### 6-1. Root Directory 지정 방법
+
+Railway UI 가 자주 바뀌어서 메뉴 경로가 헷갈릴 수 있다. 두 가지 방법 중 편한 쪽:
+
+**(A) Settings 메뉴에서 직접 지정**
+- `Settings → Service → Root Directory` (또는 `Settings → Source → Root Directory`,
+  버전에 따라 위치가 다름) 에 `elevenlabs_based` 입력 후 저장.
+
+**(B) Railway 우측 Agent 챗봇으로 자연어 지정 (UI 에서 못 찾을 때 — 실제 검증됨)**
+- 프로젝트 화면 우측의 Railway AI Agent 패널에 다음과 같이 입력:
+  > Set the root directory to `elevenlabs_based`
+
+  Agent 가 자동으로 설정을 변경하고 재배포를 트리거한다.
+
+### 6-2. (옵션) 추가 설정
+
+- **Build → Builder**: Railway 는 현재 `Railpack` 이 기본 (구 Nixpacks). `requirements.txt`
+  존재만으로 Python 으로 자동 인식되므로 별도 지정 불요.
+- **Deploy → Start Command**: `Procfile` 의 `web: python app_realtime.py` 가 자동 인식되므로
+  비워둬도 됨. (안 잡힐 때만 `python app_realtime.py` 수동 입력)
 
 ---
 
