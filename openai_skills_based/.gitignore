@@ -6,7 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 
-requirements.txt
+# requirements.txt 는 Railway 배포에 필요하므로 추적함 (이전엔 제외했지만 복구)
 
 *.wav
 *.pcm
