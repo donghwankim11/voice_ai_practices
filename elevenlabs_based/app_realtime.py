@@ -22,8 +22,10 @@ VAD/인터럽션:
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import os
+import secrets
 import ssl
 from contextlib import suppress
 
@@ -32,6 +34,8 @@ import websockets
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 from scenario import OPENING_LINE, SCENARIO_PROMPT
 
@@ -70,9 +74,40 @@ SSL_CTX = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 
 
 # ---------------------------------------------------------------------------
+# Basic Auth (Railway 등 공개 URL 보호용)
+# ---------------------------------------------------------------------------
+BASIC_USER = os.getenv("BASIC_AUTH_USER")
+BASIC_PASS = os.getenv("BASIC_AUTH_PASS")
+
+
+def _check_basic_auth(header_value: str | None) -> bool:
+    if not (BASIC_USER and BASIC_PASS):
+        return True  # 환경변수 미설정 시 비활성 (로컬 개발 편의)
+    if not header_value or not header_value.lower().startswith("basic "):
+        return False
+    try:
+        decoded = base64.b64decode(header_value.split(" ", 1)[1]).decode("utf-8")
+        user, _, pw = decoded.partition(":")
+    except Exception:
+        return False
+    return secrets.compare_digest(user, BASIC_USER) and secrets.compare_digest(pw, BASIC_PASS)
+
+
+class BasicAuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if _check_basic_auth(request.headers.get("authorization")):
+            return await call_next(request)
+        return Response(
+            status_code=401,
+            headers={"WWW-Authenticate": 'Basic realm="baemin-elevenlabs"'},
+        )
+
+
+# ---------------------------------------------------------------------------
 # FastAPI 앱
 # ---------------------------------------------------------------------------
 app = FastAPI(title="Baemin 음성 AGENT (ElevenLabs Convai)")
+app.add_middleware(BasicAuthMiddleware)
 
 
 @app.get("/")
@@ -697,4 +732,5 @@ window.addEventListener("beforeunload", () => stop(false));
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=7862)
+    port = int(os.getenv("PORT", "7862"))  # Railway 는 PORT 주입, 로컬은 7862 유지
+    uvicorn.run(app, host="0.0.0.0", port=port)
