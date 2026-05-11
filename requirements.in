@@ -1,0 +1,30 @@
+# elevenlabs_based 의존성 정의
+#
+# 사용:
+#   conda env (Python>=3.10) 활성화 후:
+#     export VIRTUAL_ENV="$CONDA_PREFIX"
+#     uv pip compile requirements.in -o requirements.txt --python-version 3.10
+#     uv pip sync requirements.txt
+#   또는 잠금 없이 한 번에:
+#     uv pip install -r requirements.in
+#
+# OpenAI 버전과 달리 ElevenLabs Convai 는 STT+LLM+TTS+VAD 를 한 WebSocket 으로
+# 통합 제공하므로, openai SDK / gradio / numpy / sounddevice 등이 모두 불필요.
+# (양방향 PCM 스트리밍은 브라우저 AudioWorklet + 서버 websockets 만으로 충분)
+
+# .env 로딩
+python-dotenv==1.0.1
+
+# ElevenLabs Convai WebSocket 클라이언트 (raw websockets — SDK 미사용으로 의존성 최소화)
+websockets==15.0
+
+# REST 호출용 (signed URL 발급은 안 쓰지만, create_agent.py 의 agent 생성 API 호출에 사용)
+httpx==0.28.1
+
+# 실시간 양방향 음성 데모용 (FastAPI WebSocket 서버 + 브라우저 AudioWorklet)
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# 사내 프록시(SSL 인스펙션)가 자체 서명 인증서를 끼워 넣는 환경 대응:
+# OS 시스템 키체인의 신뢰 루트(사내 CA 포함)를 Python SSL 검증에 사용한다.
+truststore==0.10.1
